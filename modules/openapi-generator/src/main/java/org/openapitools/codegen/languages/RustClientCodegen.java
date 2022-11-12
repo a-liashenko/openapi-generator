@@ -104,6 +104,9 @@ public class RustClientCodegen extends AbstractRustCodegen implements CodegenCon
                 .excludeParameterFeatures(
                         ParameterFeature.Cookie
                 )
+                .includeSchemaSupportFeatures(
+                        SchemaSupportFeature.oneOf
+                )
                 .includeClientModificationFeatures(
                         ClientModificationFeature.BasePath,
                         ClientModificationFeature.UserAgent
