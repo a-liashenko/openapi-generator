@@ -1173,7 +1173,9 @@
                 <module>samples/client/petstore/rust/reqwest/petstore-async-middleware</module>
                 <module>samples/client/other/rust</module>
                 <module>samples/client/other/rust/hyper/oneOf</module>
+                <module>samples/client/other/rust/hyper/composed-oneof</module>
                 <module>samples/client/other/rust/reqwest/oneOf</module>
+                <module>samples/client/other/rust/reqwest/composed-oneof</module>
                 <!--<module>samples/client/petstore/javascript-apollo</module>-->
                 <module>samples/client/petstore/python-legacy</module>
                 <module>samples/client/petstore/python-asyncio</module>
