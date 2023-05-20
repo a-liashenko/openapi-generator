@@ -90,7 +90,7 @@ pub {{#supportAsync}}async {{/supportAsync}}fn {{{operationId}}}(configuration: 
 
 {{/vendorExtensions.x-group-parameters}}
 {{^vendorExtensions.x-group-parameters}}
-pub {{#supportAsync}}async {{/supportAsync}}fn {{{operationId}}}(configuration: &configuration::Configuration, {{#allParams}}{{{paramName}}}: {{^required}}Option<{{/required}}{{#required}}{{#isNullable}}Option<{{/isNullable}}{{/required}}{{#isString}}{{#isArray}}Vec<{{/isArray}}{{^isUuid}}&str{{/isUuid}}{{#isArray}}>{{/isArray}}{{/isString}}{{#isUuid}}{{#isArray}}Vec<{{/isArray}}&str{{#isArray}}>{{/isArray}}{{/isUuid}}{{^isString}}{{^isUuid}}{{^isPrimitiveType}}{{^isContainer}}{{#isBodyParam}}crate::models::{{/isBodyParam}}{{/isContainer}}{{/isPrimitiveType}}{{{dataType}}}{{/isUuid}}{{/isString}}{{^required}}>{{/required}}{{#required}}{{#isNullable}}>{{/isNullable}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}) -> Result<{{#supportMultipleResponses}}ResponseContent<{{{operationIdCamelCase}}}Success>{{/supportMultipleResponses}}{{^supportMultipleResponses}}{{^returnType}}(){{/returnType}}{{{returnType}}}{{/supportMultipleResponses}}, Error<{{{operationIdCamelCase}}}Error>> {
+pub {{#supportAsync}}async {{/supportAsync}}fn {{{operationId}}}(configuration: &configuration::Configuration, {{#allParams}}{{{paramName}}}: {{^required}}Option<{{/required}}{{#required}}{{#isNullable}}Option<{{/isNullable}}{{/required}}{{#isString}}{{#isArray}}Vec<{{/isArray}}{{^isUuid}}&str{{/isUuid}}{{#isArray}}>{{/isArray}}{{/isString}}{{#isUuid}}{{#isArray}}Vec<{{/isArray}}&str{{#isArray}}>{{/isArray}}{{/isUuid}}{{^isString}}{{^isUuid}}{{^isPrimitiveType}}{{^isContainer}}crate::models::{{/isContainer}}{{/isPrimitiveType}}{{{dataType}}}{{/isUuid}}{{/isString}}{{^required}}>{{/required}}{{#required}}{{#isNullable}}>{{/isNullable}}{{/required}}{{^-last}}, {{/-last}}{{/allParams}}) -> Result<{{#supportMultipleResponses}}ResponseContent<{{{operationIdCamelCase}}}Success>{{/supportMultipleResponses}}{{^supportMultipleResponses}}{{^returnType}}(){{/returnType}}{{{returnType}}}{{/supportMultipleResponses}}, Error<{{{operationIdCamelCase}}}Error>> {
     let local_var_configuration = configuration;
 {{/vendorExtensions.x-group-parameters}}
 
@@ -109,11 +109,25 @@ pub {{#supportAsync}}async {{/supportAsync}}fn {{{operationId}}}(configuration: 
     {{/isArray}}
     {{^isArray}}
     {{^isNullable}}
+    {{#isDeepObject}}
+    local_var_req_builder = {
+        #[derive(Serialize)]
+        struct LocalStructDeep{{dataType}}<'a> {
+            r#{{baseName}}: &'a crate::models::{{dataType}},
+        }
+        let local_deep_struct = LocalStructDeep{{dataType}}{ r#{{baseName}}: &{{baseName}} };
+        let params = crate::query_to_pairs(&local_deep_struct);
+        local_var_req_builder.query(&params)
+    };
+    {{/isDeepObject}}
+    {{^isDeepObject}}
     local_var_req_builder = local_var_req_builder.query(&[("{{{baseName}}}", &{{{paramName}}}.to_string())]);
+    {{/isDeepObject}}
     {{/isNullable}}
     {{#isNullable}}
     {{#isDeepObject}}
     if let Some(ref local_var_str) = {{{paramName}}} {
+        dbg!("Deep object required");
         let params = crate::apis::parse_deep_object("{{{baseName}}}", local_var_str);
         local_var_req_builder = local_var_req_builder.query(&params);
     };
@@ -136,7 +150,13 @@ pub {{#supportAsync}}async {{/supportAsync}}fn {{{operationId}}}(configuration: 
         {{/isArray}}
         {{^isArray}}
         {{#isDeepObject}}
-        let params = crate::apis::parse_deep_object("{{{baseName}}}", local_var_str);
+        #[derive(Serialize)]
+        struct LocalStructDeep{{dataType}}<'a> {
+            r#{{baseName}}: &'a crate::models::{{dataType}},
+        }
+        let local_deep_struct = LocalStructDeep{{dataType}}{ r#{{baseName}}: local_var_str };
+        // let params = crate::apis::parse_deep_object("{{{baseName}}}", local_var_str);
+        let params = crate::query_to_pairs(&local_deep_struct);
         local_var_req_builder = local_var_req_builder.query(&params);
         {{/isDeepObject}}
         {{^isDeepObject}}
@@ -342,6 +362,8 @@ pub {{#supportAsync}}async {{/supportAsync}}fn {{{operationId}}}(configuration: 
     {{/hasBodyParam}}
 
     let local_var_req = local_var_req_builder.build()?;
+    // FIXME: Remove after template fix
+    dbg!(&local_var_req);
     let {{^supportAsync}}mut {{/supportAsync}}local_var_resp = local_var_client.execute(local_var_req){{#supportAsync}}.await{{/supportAsync}}?;
 
     let local_var_status = local_var_resp.status();
